@@ -1,0 +1,29 @@
+Torus T-duality potential convergence report
+Generated: 2026-06-18 16:50:26
+Formula: U_T2(xi;a) = sum a*K1(2*pi*a*|n|)/(2*pi*|n|)*(1-cos(2*pi*n1*xi))
+Reference: U_inf(xi;a) = (1/(4*pi))*log(1 + xi^2/a^2)
+tail tolerance = 1.000e-10
+
+a = 0.020000
+  cutoff N                  = 164
+  tail estimate             = 9.79492418e-11
+  max |U_2N - U_N|          = 2.13455729e-11
+  csv                       = torus_potential_a_0p020.csv
+
+a = 0.050000
+  cutoff N                  = 66
+  tail estimate             = 8.61234109e-11
+  max |U_2N - U_N|          = 1.72628162e-11
+  csv                       = torus_potential_a_0p050.csv
+
+a = 0.100000
+  cutoff N                  = 33
+  tail estimate             = 8.61234109e-11
+  max |U_2N - U_N|          = 1.44745188e-11
+  csv                       = torus_potential_a_0p100.csv
+
+Files written:
+  torus_potential.pdf
+  torus_potential_a_0p020.csv
+  torus_potential_a_0p050.csv
+  torus_potential_a_0p100.csv

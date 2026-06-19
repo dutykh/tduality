@@ -1,0 +1,30 @@
+Running interaction dimension convergence report
+Generated: 2026-06-18 20:21:08
+Formula: D_T2(xi;a) = 3 - xi*dU_T2/dxi/U_T2
+Reference: D_inf(s) = 3 - 2*s^2/((1+s^2)*log(1+s^2)), s=xi/a
+potential-tail tolerance = 1.000e-10
+dimension convergence tolerance = 1.000e-08
+
+a = 0.020000
+  cutoff N                  = 328
+  tail estimate             = 7.78841280e-20
+  max |D_2N - D_N|          = 0.00000000e+00
+  csv                       = running_dimension_a_0p020.csv
+
+a = 0.050000
+  cutoff N                  = 132
+  tail estimate             = 6.03929998e-20
+  max |D_2N - D_N|          = 0.00000000e+00
+  csv                       = running_dimension_a_0p050.csv
+
+a = 0.100000
+  cutoff N                  = 66
+  tail estimate             = 6.03929998e-20
+  max |D_2N - D_N|          = 0.00000000e+00
+  csv                       = running_dimension_a_0p100.csv
+
+Files written:
+  running_dimension_torus.pdf
+  running_dimension_a_0p020.csv
+  running_dimension_a_0p050.csv
+  running_dimension_a_0p100.csv

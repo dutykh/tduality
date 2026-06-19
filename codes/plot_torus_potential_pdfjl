@@ -1,0 +1,394 @@
+#!/usr/bin/env julia
+
+# plot_torus_potential_pdf_noylabel.jl
+#
+# Self-contained Julia workflow for the finite-size T-duality potential
+# on a square torus. This version avoids Plots.jl, GR.jl, Qt, Makie,
+# and GUI backends. It uses SpecialFunctions.jl only for Bessel K and
+# writes a vector PDF directly, without requiring pdflatex.
+#
+# Run:
+#     julia plot_torus_potential_pdf_noylabel.jl
+#
+# Formula implemented for axial separation r = (xi L,0):
+#
+# U_T2(xi; a) = Delta V_{L,l0}(r,0)/Q^2
+#              = sum_{n in Z^2 \ {0}}
+#                a K_1(2*pi*a*|n|)/(2*pi*|n|)
+#                * [1 - cos(2*pi*n1*xi)],
+# where a = l0/L and xi = r/L.
+#
+# Infinite-plane reference:
+# U_inf(xi; a) = (1/(4*pi))*log(1 + xi^2/a^2).
+#
+# The produced plot has no y-axis label. The vertical quantity should be
+# explained in the manuscript caption.
+
+using Pkg
+using Printf
+using Dates
+
+const SCRIPT_DIR = @__DIR__
+const ENV_DIR = joinpath(SCRIPT_DIR, ".torus_potential_env_noqt")
+
+function ensure_dependencies()
+    println("Activating isolated Julia environment: ", ENV_DIR)
+    Pkg.activate(ENV_DIR)
+    try
+        if Base.find_package("SpecialFunctions") === nothing
+            Pkg.add("SpecialFunctions")
+        end
+        Pkg.instantiate()
+    catch err
+        println(stderr, "Failed to install or instantiate SpecialFunctions.jl.")
+        println(stderr, "This script intentionally avoids Plots.jl, GR.jl, Qt, Makie, and pdflatex.")
+        rethrow(err)
+    end
+end
+
+ensure_dependencies()
+using SpecialFunctions
+
+# --------------------------- user parameters ---------------------------
+
+const A_VALUES = [0.02, 0.05, 0.10]      # a = l0/L
+const XI_MIN = 0.0
+const XI_MAX = 0.5
+const N_XI = 501
+const TAIL_TOL = 1.0e-10
+const CONV_FACTOR = 2
+const OUT_DIR = joinpath(SCRIPT_DIR, "torus_potential_output_pdf")
+const TWOPI = 2.0*pi
+
+# Publication-figure options.
+const SHOW_TITLE = false                 # keep false; caption explains the plot
+const FIGURE_TITLE = "T-duality potential on the square torus"
+const SHOW_Y_AXIS_LABEL = false          # requested: no y-axis label
+
+# --------------------------- numerical core ----------------------------
+
+function sanitize_a(a::Float64)::String
+    return replace(@sprintf("%.3f", a), "." => "p")
+end
+
+# Practical tail estimate for the omitted lattice modes.
+function tail_estimate(a::Float64, N::Int)::Float64
+    return besselk(0, TWOPI*a*N)/pi
+end
+
+function choose_cutoff(a::Float64; tol::Float64=TAIL_TOL,
+                       minN::Int=16, maxN::Int=20000)::Int
+    N = minN
+    while tail_estimate(a, N) > tol
+        N *= 2
+        if N > maxN
+            @warn "Reached maxN before tail target was achieved" a tol N tail=tail_estimate(a, N)
+            return maxN
+        end
+    end
+
+    lo = max(minN, N ÷ 2)
+    hi = N
+    while hi - lo > 1
+        mid = (lo + hi) ÷ 2
+        if tail_estimate(a, mid) <= tol
+            hi = mid
+        else
+            lo = mid
+        end
+    end
+    return hi
+end
+
+# Axial coefficients: U(xi;a)=sum_{m=1}^N C_m(a,N)[1-cos(2*pi*m*xi)].
+function axial_coefficients(a::Float64, N::Int)::Vector{Float64}
+    coeffs = zeros(Float64, N)
+    for m in 1:N
+        acc = 0.0
+        for n2 in -N:N
+            rho = hypot(m, n2)
+            z = TWOPI*a*rho
+            acc += a*besselk(1, z)/(TWOPI*rho)
+        end
+        coeffs[m] = 2.0*acc   # n1 = +m and n1 = -m
+    end
+    return coeffs
+end
+
+function torus_potential_axial(xis::Vector{Float64}, a::Float64, N::Int)::Vector{Float64}
+    coeffs = axial_coefficients(a, N)
+    U = zeros(Float64, length(xis))
+    for (j, xi) in enumerate(xis)
+        s = 0.0
+        for m in 1:N
+            s += coeffs[m]*(1.0 - cos(TWOPI*m*xi))
+        end
+        U[j] = s
+    end
+    return U
+end
+
+function infinite_plane_reference(xi::Float64, a::Float64)::Float64
+    return log1p((xi/a)^2)/(4.0*pi)
+end
+
+function convergence_error(xis::Vector{Float64}, a::Float64, N::Int)::Float64
+    U_N = torus_potential_axial(xis, a, N)
+    U_big = torus_potential_axial(xis, a, CONV_FACTOR*N)
+    return maximum(abs.(U_big .- U_N))
+end
+
+# ------------------------------ PDF output -----------------------------
+
+struct Curve
+    x::Vector{Float64}
+    y::Vector{Float64}
+    label::String
+    rgb::Tuple{Float64,Float64,Float64}
+    dash::Bool
+end
+
+function pdf_escape(s::String)::String
+    s = replace(s, "\\" => "\\\\")
+    s = replace(s, "(" => "\\(")
+    s = replace(s, ")" => "\\)")
+    return s
+end
+
+function text_width_estimate(s::String, fontsize::Float64)::Float64
+    # Good enough for axis labels and legend placement with Helvetica.
+    return 0.52*fontsize*length(s)
+end
+
+function push_line!(buf::IOBuffer, x1, y1, x2, y2; rgb=(0.0,0.0,0.0), width=0.6, dash=false)
+    r,g,b = rgb
+    dashcmd = dash ? "[5 4] 0 d" : "[] 0 d"
+    @printf(buf, "q %.4f %.4f %.4f RG %.3f w %s %.3f %.3f m %.3f %.3f l S Q\n",
+            r, g, b, width, dashcmd, x1, y1, x2, y2)
+end
+
+function push_rect!(buf::IOBuffer, x, y, w, h; stroke=(0.0,0.0,0.0), fill=nothing, width=0.6)
+    if fill !== nothing
+        r,g,b = fill
+        @printf(buf, "q %.4f %.4f %.4f rg %.3f %.3f %.3f %.3f re f Q\n", r, g, b, x, y, w, h)
+    end
+    r,g,b = stroke
+    @printf(buf, "q %.4f %.4f %.4f RG %.3f w %.3f %.3f %.3f %.3f re S Q\n", r, g, b, width, x, y, w, h)
+end
+
+function push_text!(buf::IOBuffer, x, y, s::String; fontsize=10.0, align=:left)
+    xx = x
+    if align == :center
+        xx -= text_width_estimate(s, fontsize)/2
+    elseif align == :right
+        xx -= text_width_estimate(s, fontsize)
+    end
+    @printf(buf, "BT /F1 %.2f Tf 0 0 0 rg 1 0 0 1 %.3f %.3f Tm (%s) Tj ET\n",
+            fontsize, xx, y, pdf_escape(s))
+end
+
+function push_polyline!(buf::IOBuffer, curve::Curve, xmin, xmax, ymin, ymax, left, bottom, plotW, plotH)
+    r,g,b = curve.rgb
+    dashcmd = curve.dash ? "[6 5] 0 d" : "[] 0 d"
+    @printf(buf, "q %.4f %.4f %.4f RG 1.35 w %s\n", r, g, b, dashcmd)
+    first = true
+    for (x, y) in zip(curve.x, curve.y)
+        px = left + (x - xmin)/(xmax - xmin)*plotW
+        py = bottom + (y - ymin)/(ymax - ymin)*plotH
+        if first
+            @printf(buf, "%.3f %.3f m\n", px, py)
+            first = false
+        else
+            @printf(buf, "%.3f %.3f l\n", px, py)
+        end
+    end
+    print(buf, "S Q\n")
+end
+
+function pdf_write_file(filename::String, content::String, W::Float64, H::Float64)
+    objects = String[]
+    push!(objects, "<< /Type /Catalog /Pages 2 0 R >>")
+    push!(objects, "<< /Type /Pages /Kids [3 0 R] /Count 1 >>")
+    push!(objects, "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 $(Int(round(W))) $(Int(round(H)))] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>")
+    push!(objects, "<< /Length $(ncodeunits(content)) >>\nstream\n$(content)\nendstream")
+    push!(objects, "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>")
+
+    open(filename, "w") do io
+        write(io, "%PDF-1.4\n")
+        offsets = Int[]
+        for (i, obj) in enumerate(objects)
+            push!(offsets, position(io))
+            write(io, "$(i) 0 obj\n")
+            write(io, obj)
+            write(io, "\nendobj\n")
+        end
+        xref_pos = position(io)
+        write(io, "xref\n")
+        write(io, "0 $(length(objects)+1)\n")
+        write(io, "0000000000 65535 f \n")
+        for off in offsets
+            write(io, @sprintf("%010d 00000 n \n", off))
+        end
+        write(io, "trailer\n")
+        write(io, "<< /Size $(length(objects)+1) /Root 1 0 R >>\n")
+        write(io, "startxref\n")
+        write(io, "$(xref_pos)\n")
+        write(io, "%%EOF\n")
+    end
+end
+
+function write_pdf_plot(filename::String, curves::Vector{Curve})
+    xmin, xmax = 0.0, 0.5
+    ymin = 0.0
+    ymax = maximum(maximum(c.y) for c in curves)
+    ymax = max(1.08*ymax, 1.0e-6)
+
+    W, H = 612.0, 410.0
+    left, right = 72.0, 24.0
+    bottom, top = 58.0, SHOW_TITLE ? 45.0 : 24.0
+    plotW = W - left - right
+    plotH = H - bottom - top
+
+    xticks = collect(range(xmin, xmax, length=6))
+    yticks = collect(range(ymin, ymax, length=6))
+
+    buf = IOBuffer()
+
+    # White background.
+    @printf(buf, "q 1 1 1 rg 0 0 %.3f %.3f re f Q\n", W, H)
+
+    if SHOW_TITLE
+        push_text!(buf, W/2, H-25, FIGURE_TITLE; fontsize=14.0, align=:center)
+    end
+
+    # Grid and axes.
+    for xt in xticks
+        px = left + (xt - xmin)/(xmax - xmin)*plotW
+        push_line!(buf, px, bottom, px, bottom+plotH; rgb=(0.88,0.88,0.88), width=0.35)
+    end
+    for yt in yticks
+        py = bottom + (yt - ymin)/(ymax - ymin)*plotH
+        push_line!(buf, left, py, left+plotW, py; rgb=(0.92,0.92,0.92), width=0.35)
+    end
+    push_line!(buf, left, bottom, left+plotW, bottom; width=0.8)
+    push_line!(buf, left, bottom, left, bottom+plotH; width=0.8)
+
+    # Ticks and tick labels.
+    for xt in xticks
+        px = left + (xt - xmin)/(xmax - xmin)*plotW
+        push_line!(buf, px, bottom, px, bottom-4.0; width=0.6)
+        push_text!(buf, px, bottom-20.0, @sprintf("%.2f", xt); fontsize=9.0, align=:center)
+    end
+    for yt in yticks
+        py = bottom + (yt - ymin)/(ymax - ymin)*plotH
+        push_line!(buf, left-4.0, py, left, py; width=0.6)
+        push_text!(buf, left-8.0, py-3.0, @sprintf("%.3f", yt); fontsize=9.0, align=:right)
+    end
+
+    # Curves.
+    for c in curves
+        push_polyline!(buf, c, xmin, xmax, ymin, ymax, left, bottom, plotW, plotH)
+    end
+
+    # x-axis label only. No y-axis label by request.
+    push_text!(buf, left+plotW/2, 18.0, "r/L"; fontsize=12.0, align=:center)
+    if SHOW_Y_AXIS_LABEL
+        # Kept as a switch, but false by default.
+        push_text!(buf, 18.0, bottom+plotH/2, "Delta V / Q^2"; fontsize=12.0, align=:center)
+    end
+
+    # Legend.
+    legx = left + 16.0
+    legy_top = bottom + plotH - 18.0
+    leg_w = 220.0
+    leg_h = 15.5*length(curves) + 10.0
+    push_rect!(buf, legx-8.0, legy_top-leg_h+6.0, leg_w, leg_h; stroke=(0.65,0.65,0.65), fill=(1.0,1.0,1.0), width=0.45)
+    for (i, c) in enumerate(curves)
+        y = legy_top - 15.5*(i-1)
+        push_line!(buf, legx, y, legx+28.0, y; rgb=c.rgb, width=1.35, dash=c.dash)
+        push_text!(buf, legx+36.0, y-3.2, c.label; fontsize=8.5, align=:left)
+    end
+
+    pdf_write_file(filename, String(take!(buf)), W, H)
+end
+
+# ------------------------------- main ----------------------------------
+
+function main()
+    mkpath(OUT_DIR)
+    xis = collect(range(XI_MIN, XI_MAX, length=N_XI))
+    curves = Curve[]
+    report_lines = String[]
+
+    push!(report_lines, "Torus T-duality potential convergence report")
+    push!(report_lines, "Generated: $(Dates.format(now(), "yyyy-mm-dd HH:MM:SS"))")
+    push!(report_lines, "Formula: U_T2(xi;a) = sum a*K1(2*pi*a*|n|)/(2*pi*|n|)*(1-cos(2*pi*n1*xi))")
+    push!(report_lines, "Reference: U_inf(xi;a) = (1/(4*pi))*log(1 + xi^2/a^2)")
+    push!(report_lines, @sprintf("tail tolerance = %.3e", TAIL_TOL))
+    push!(report_lines, "")
+
+    colors = [(0.121,0.466,0.705), (0.839,0.153,0.157), (0.173,0.627,0.173), (0.580,0.404,0.741), (1.000,0.498,0.055)]
+
+    for (idx, a) in enumerate(A_VALUES)
+        println("------------------------------------------------------------")
+        @printf("Processing a = l0/L = %.5f\n", a)
+
+        N = choose_cutoff(a; tol=TAIL_TOL)
+        tail = tail_estimate(a, N)
+        U = torus_potential_axial(xis, a, N)
+        Uinf = [infinite_plane_reference(xi, a) for xi in xis]
+        err = convergence_error(xis, a, N)
+
+        @printf("  cutoff N                         = %d\n", N)
+        @printf("  heuristic tail estimate           = %.6e\n", tail)
+        @printf("  max |U_%dN - U_N| on grid          = %.6e\n", CONV_FACTOR, err)
+
+        suffix = sanitize_a(a)
+        csvname = "torus_potential_a_$(suffix).csv"
+        csvpath = joinpath(OUT_DIR, csvname)
+        open(csvpath, "w") do io
+            println(io, "r_over_L,torus_deltaV_over_Q2,infinite_plane_deltaV_over_Q2")
+            for j in eachindex(xis)
+                @printf(io, "%.16e,%.16e,%.16e\n", xis[j], U[j], Uinf[j])
+            end
+        end
+
+        color = colors[mod1(idx, length(colors))]
+        push!(curves, Curve(xis, U, @sprintf("torus l0/L=%.2f", a), color, false))
+        push!(curves, Curve(xis, Uinf, @sprintf("plane l0/L=%.2f", a), color, true))
+
+        push!(report_lines, @sprintf("a = %.6f", a))
+        push!(report_lines, @sprintf("  cutoff N                  = %d", N))
+        push!(report_lines, @sprintf("  tail estimate             = %.8e", tail))
+        push!(report_lines, @sprintf("  max |U_%dN - U_N|          = %.8e", CONV_FACTOR, err))
+        push!(report_lines, @sprintf("  csv                       = %s", csvname))
+        push!(report_lines, "")
+    end
+
+    pdffile = joinpath(OUT_DIR, "torus_potential.pdf")
+    write_pdf_plot(pdffile, curves)
+
+    report = joinpath(OUT_DIR, "convergence_report.txt")
+    open(report, "w") do io
+        for line in report_lines
+            println(io, line)
+        end
+        println(io, "Files written:")
+        println(io, "  torus_potential.pdf")
+        for a in A_VALUES
+            println(io, "  torus_potential_a_$(sanitize_a(a)).csv")
+        end
+    end
+
+    println("------------------------------------------------------------")
+    println("Done. Output directory:")
+    println("  ", OUT_DIR)
+    println("Files:")
+    println("  torus_potential.pdf")
+    println("  convergence_report.txt")
+    for a in A_VALUES
+        println("  torus_potential_a_$(sanitize_a(a)).csv")
+    end
+end
+
+main()
