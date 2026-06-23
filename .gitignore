@@ -45,3 +45,4 @@ JuliaLocalPreferences.toml
 *.nav
 *.snm
 *.vrb
+.claude/
