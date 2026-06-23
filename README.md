@@ -10,7 +10,9 @@ This repository contains the Julia scripts, the numerical output, and the
 manuscript for a finite-size formulation of T-duality-deformed electrostatics
 in 2+1 dimensions: corrected Green functions, self-energy-subtracted pair
 potentials, boundary effects, and the running interaction dimension. The
-manuscript is included in [`pdf/T_Duality.pdf`](pdf/T_Duality.pdf).
+manuscript LaTeX sources are provided under [`latex/`](latex/) in two journal
+formats — APS (REVTeX) and Proceedings of the Royal Society A — each of which
+builds to a PDF with a single `make` (see [Manuscript](#manuscript)).
 
 ## Background
 
@@ -70,8 +72,9 @@ convergence checks behind them.
 │   ├── running_dimension_a_0p050.csv
 │   ├── running_dimension_a_0p100.csv
 │   └── running_dimension_convergence_report.txt
-├── pdf/
-│   └── T_Duality.pdf                            The manuscript
+├── latex/                                       Manuscript LaTeX sources (two formats)
+│   ├── APS/                                      APS REVTeX version — main.tex, Makefile, figs/
+│   └── PRSA/                                     Proc. R. Soc. A version — main.tex, Makefile, figs/, class
 ├── LICENSE                                      GNU LGPL v2.1
 └── README.md
 ```
@@ -174,6 +177,31 @@ differences. Infinite-plane references:
 $\mathcal{U}_\infty = \frac{1}{4\pi}\ln(1 + \xi^2/\mathfrak{a}^2)$ and
 $\mathbb{D}_\Delta^{(\infty)}(s) = 3 - 2s^2/[(1+s^2)\ln(1+s^2)]$ with
 $s = \xi/\mathfrak{a}$.
+
+## Manuscript
+
+The manuscript LaTeX sources live under [`latex/`](latex/) in two
+ready-to-submit journal formats that share the same text, figures, and
+bibliography (`FRT.bib`):
+
+- [`latex/APS/`](latex/APS/) — APS **REVTeX** version.
+- [`latex/PRSA/`](latex/PRSA/) — **Proceedings of the Royal Society A** version
+  (`rsproca_new` class).
+
+Each folder has a `Makefile` that runs the full
+`pdflatex → bibtex → pdflatex → pdflatex` cycle and then removes all auxiliary
+files, leaving only `main.pdf`:
+
+```bash
+cd latex/PRSA   # or latex/APS
+make            # build main.pdf (intermediates are cleaned up automatically)
+make distclean  # also remove main.pdf
+```
+
+Building requires a TeX distribution (e.g. TeX Live) with `pdflatex` and
+`bibtex`. The two figures (`figs/torus_potential.pdf`,
+`figs/running_dimension_torus.pdf`) are the PDFs produced by the Julia scripts
+above.
 
 ## Citing
 
