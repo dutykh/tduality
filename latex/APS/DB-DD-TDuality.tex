@@ -7,6 +7,13 @@
 \usepackage{tabularx}
 \usepackage[dvipsnames]{xcolor}
 
+%%%% Revision markup (RSPA-2026-0600). The first definition marks text added
+%%%% in response to the referees in red, for the version showing changes; the
+%%%% second leaves it as ordinary body text, for the clean submission.
+%%%% Exactly one of the two must be active.
+\newcommand{\revadd}[1]{{\color{red}#1}}
+%\newcommand{\revadd}[1]{#1}
+
 \usepackage{todonotes}
 \usepackage{upgreek}
 \usepackage{graphicx}% Include figure files
@@ -383,6 +390,9 @@ Thus, the nonlocality can be viewed in two equivalent ways. One may either keep 
   G_{\Omega,0}^{(B)}(x,x')
   =\sum_{\lambda_n>0}\frac{u_n(x)u_n^*(x')}{\lambda_n}.
 \end{equation}
+
+\revadd{At the spectral level this construction resembles analytic (or zeta) regularisation, but the role of the regulator is different. A standard analytic prescription replaces $A_B^{-1}P_\perp$ by $\mu^{2\epsilon}A_B^{-1-\epsilon}P_\perp$ (equivalently, $k^{-2}$ by $\mu^{2\epsilon}(k^2)^{-1-\epsilon}$), first for $\operatorname{Re}\epsilon>0$, and then defines the value at $\epsilon=0$ by meromorphic continuation and finite-part subtraction \cite{Seeley1967}. Both prescriptions are spectral functions of the same self-adjoint Laplacian and both admit heat-kernel representations. Analytic regularisation, however, is a computational prescription according to which $\epsilon$ is removed, the renormalised diagonal finite part depends on the scale $\mu$, and the off-diagonal operator returns to the Maxwell Green operator. Here, $\ell_0$ is retained, and $F_{\ell_0}(\lambda)/\lambda$ decays as $\lambda^{-3/4}e^{-\ell_0\sqrt{\lambda}}$. Hence, the Green operator is infinitely smoothing and the electric field is modified at separations of order $\ell_0$. Thus, T-duality regularisation is not analytic regularisation in disguise, although the two share the same spectral and heat-kernel technology.}
+
 In two dimensions this local-limit kernel is the ordinary Green function off the diagonal, and also in the distributional sense, but it is not finite on the diagonal. Thus the statement $G_{\Omega,\ell_0}^{(B)}\to G_{\Omega,0}^{(B)}$ must not be read as a pointwise finite diagonal limit: $G_{\Omega,0}^{(B)}(x,x)$ diverges, whereas $G_{\Omega,\ell_0}^{(B)}(x,x)$ is finite for every fixed $\ell_0>0$ and interior $x$. For a static charge density $j(x)$ satisfying $P_0j=0$ whenever a zero mode is present, the scalar potential is
 \begin{equation}\label{A0}
   A_0(x)=\int_\Omega d^2x'\,G_{\Omega,\ell_0}^{(B)}(x,x')\,j(x').
@@ -1093,6 +1103,8 @@ Third, it would be important to include genuinely $(2+1)$-dimensional gauge stru
 Fourth, the present work has been restricted to the static Euclidean sector. A complete dynamical theory requires specifying the Lorentzian branch of the operator $\ell_0\sqrt{\Box}\, K_1(\ell_0\sqrt{\Box})$, together with its retarded Green function, spectral representation, and causality properties. This is a more delicate problem than the static one because nonlocal form factors can be benign in Euclidean Green functions while requiring additional prescriptions in real time. Establishing unitarity, spectral positivity, or the precise domain of validity of the effective description remains an important open direction.
 
 Finally, the scale $\ell_0$ need not have the same interpretation in all applications. In a fundamental setting, it is tied to the zero-point length suggested by path-integral duality and string-theoretic T-duality \cite{Padmanabhan1997, SmailagicSpallucciPadmanabhan2003, FontaniniSpallucciPadmanabhan2006}. In an effective planar material, however, it may instead represent an emergent short-distance scale, such as a lattice spacing, a coherence length, a screening length, or a nonlocal response length. The finite-size formulae derived here are therefore useful not only as consistency checks on T-duality electrodynamics, but also as a controlled phenomenological framework for studying regularised planar interactions in finite samples.
+
+\revadd{A concrete effective-medium route is obtained by integrating out microscopic polarisation modes or an electromagnetic environment outside the plane. Such reductions generate momentum-dependent planar Maxwell kernels in thin films and reduced electrodynamics \cite{Pearl1964, LaNaveLimtragoolPhillips2019}. In the static sector, one could write the resulting quadratic response as $S_{\rm eff}^{(2)}=\tfrac12\int \!d^2k/(2\pi)^2\,A_0(-\mathbf k)k^2\varepsilon_{\rm eff}(k)A_0(\mathbf k)$. The choice $\varepsilon_{\rm eff}(k)=[\ell_0kK_1(\ell_0k)]^{-1}$ gives exactly the propagator used here. Moreover, its positivity for $k>0$ guarantees stability of the static quadratic form. Equivalently, by Eq.~\eqref{density}, the same one-source static Green function is produced by ordinary planar Poisson theory coupled to the normalised extended charge cloud $\rho_{\ell_0}$, so an effective quasiparticle or vortex core with that profile can reproduce the point-probe potential without a fundamental modification of the photon. These observations make the Bessel kernel a consistent effective linear-response model. They do not imply that a presently known material realises its precise momentum dependence. However, deriving it microscopically, and verifying a causal Lorentzian completion, remain separate questions.}
 
 In summary, T-duality-deformed planar electrostatics is not completely characterised by its infinite-plane potential. The physically meaningful theory in two spatial dimensions requires both a zero-point length and an infrared prescription. The spectral construction developed here provides such a prescription for finite, bounded domains, yields explicit Green functions in representative geometries, and shows that the ultraviolet dimensional flow is robust, while the infrared behavior is geometry-dependent.
 

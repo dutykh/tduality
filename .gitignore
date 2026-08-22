@@ -46,3 +46,4 @@ JuliaLocalPreferences.toml
 *.snm
 *.vrb
 .claude/
+.tmp/

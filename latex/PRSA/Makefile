@@ -1,7 +1,7 @@
 # Makefile for the Proceedings of the Royal Society A (rsproca_new) version
-# Builds main.pdf and removes all auxiliary compilation files, keeping only the PDF.
+# Builds DB-DD-TDuality.pdf and removes all auxiliary compilation files, keeping only the PDF.
 
-MAIN   = main
+MAIN   = DB-DD-TDuality
 LATEX  = pdflatex -interaction=nonstopmode -halt-on-error
 BIBTEX = bibtex
 

@@ -87,8 +87,8 @@ convergence checks behind them.
 │   ├── running_dimension_a_0p100.csv
 │   └── running_dimension_convergence_report.txt
 ├── latex/                                       Manuscript LaTeX sources (two formats)
-│   ├── APS/                                      APS REVTeX version: main.tex, Makefile, figs/
-│   └── PRSA/                                     Proc. R. Soc. A version: main.tex, Makefile, figs/, class
+│   ├── APS/                                      APS REVTeX version: DB-DD-TDuality.tex, Makefile, figs/
+│   └── PRSA/                                     Proc. R. Soc. A version: DB-DD-TDuality.tex, Makefile, figs/, class
 ├── LICENSE                                      GNU LGPL v2.1
 └── README.md
 ```
@@ -208,18 +208,33 @@ bibliography (`FRT.bib`):
 
 Each folder has a `Makefile` that runs the full
 `pdflatex → bibtex → pdflatex → pdflatex` cycle and then removes all auxiliary
-files, leaving only `main.pdf`:
+files, leaving only `DB-DD-TDuality.pdf`:
 
 ```bash
 cd latex/PRSA   # or latex/APS
-make            # build main.pdf (intermediates are cleaned up automatically)
-make distclean  # also remove main.pdf
+make            # build DB-DD-TDuality.pdf (intermediates are removed automatically)
+make distclean  # also remove DB-DD-TDuality.pdf
 ```
 
 Building requires a TeX distribution (e.g. TeX Live) with `pdflatex` and
 `bibtex`. The two figures (`figs/torus_potential.pdf`,
 `figs/running_dimension_torus.pdf`) are the PDFs produced by the Julia scripts
 above.
+
+### Marked and clean builds
+
+Passages added during the minor revision are wrapped in a `\revadd` macro
+defined near the top of each `DB-DD-TDuality.tex`. Exactly one of its two
+definitions may be active:
+
+```latex
+\newcommand{\revadd}[1]{{\color{red}#1}}   % version showing the changes
+%\newcommand{\revadd}[1]{#1}               % clean version
+```
+
+The sources are committed with the first definition active, so `make` produces
+the version in which the additions appear in red. Swapping the comment gives the
+clean submission PDF from the same source, with identical pagination.
 
 ## Citing
 
