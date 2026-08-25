@@ -2,6 +2,7 @@
 
 [![Proc. R. Soc. A](https://img.shields.io/badge/Proc.%20R.%20Soc.%20A-accepted%20%28minor%20revisions%29-success)](https://royalsocietypublishing.org/journal/rspa)
 [![License](https://img.shields.io/badge/license-LGPL%20v2.1-blue)](LICENSE)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22096405.svg)](https://doi.org/10.5281/zenodo.22096405)
 ![Julia](https://img.shields.io/badge/Julia-1.12-9558B2)
 
 Companion code, data, and manuscript sources for
@@ -15,6 +16,13 @@ Companion code, data, and manuscript sources for
 subject to minor revisions (manuscript RSPA-2026-0600, decision of 17 August
 2026). This repository is the code and data record that accompanies the
 article.
+
+**Archived release.** The version of this repository that supports the results
+of the article is permanently archived on Zenodo:
+[10.5281/zenodo.22096405](https://doi.org/10.5281/zenodo.22096405) (concept DOI,
+always resolving to the latest release). The release used in the article is
+`v1.0.0`, archived under
+[10.5281/zenodo.22096406](https://doi.org/10.5281/zenodo.22096406).
 
 This repository contains the Julia scripts, the numerical output, and the
 manuscript for a finite-size formulation of T-duality-deformed electrostatics
@@ -252,6 +260,27 @@ If you use this code or data, please cite the paper:
   journal = {Proceedings of the Royal Society A},
   year    = {2026},
   note    = {Accepted subject to minor revisions}
+}
+```
+
+and, if you use the archived codes or datasets, the Zenodo record:
+
+> D. Batic and D. Dutykh, *Spectral Green functions for T-duality-regularised
+> electrostatics in finite and bounded planar geometries: Julia codes and
+> datasets*, Zenodo (2026), v1.0.0, DOI
+> [10.5281/zenodo.22096405](https://doi.org/10.5281/zenodo.22096405).
+
+```bibtex
+@misc{BaticDutykhCode2026,
+  author       = {Batic, Davide and Dutykh, Denys},
+  title        = {{Spectral Green Functions for T-Duality-Regularised
+                   Electrostatics in Finite and Bounded Planar Geometries:
+                   Julia Codes and Datasets}},
+  year         = {2026},
+  howpublished = {Zenodo archive of the repository
+                  \url{https://github.com/dutykh/tduality/}},
+  note         = {Version v1.0.0},
+  doi          = {10.5281/zenodo.22096405}
 }
 ```
 
