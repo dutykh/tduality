@@ -1,6 +1,6 @@
-# Spectral Green Functions for T-Duality-Regularised Electrostatics in Finite and Bounded Planar Geometries
+# Spectral Green functions for T-duality-regularized electrostatics in finite and bounded planar geometries
 
-[![Proc. R. Soc. A](https://img.shields.io/badge/Proc.%20R.%20Soc.%20A-accepted%20%28minor%20revisions%29-success)](https://royalsocietypublishing.org/journal/rspa)
+[![Proc. R. Soc. A](https://img.shields.io/badge/Proc.%20R.%20Soc.%20A-482%20(2026)%2020260600-success)](https://doi.org/10.1098/rspa.2026.0600)
 [![License](https://img.shields.io/badge/license-LGPL%20v2.1-blue)](LICENSE)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22096405.svg)](https://doi.org/10.5281/zenodo.22096405)
 ![Julia](https://img.shields.io/badge/Julia-1.12-9558B2)
@@ -8,14 +8,15 @@
 Companion code, data, and manuscript sources for
 
 > Davide Batic and Denys Dutykh, *Spectral Green functions for
-> T-duality-regularised electrostatics in finite and bounded planar
-> geometries*, Mathematics Department, Khalifa University of Science and
-> Technology, Abu Dhabi, United Arab Emirates (2026).
+> T-duality-regularized electrostatics in finite and bounded planar
+> geometries*, *Proc. R. Soc. A* **482**, 20260600 (2026).
+> <https://doi.org/10.1098/rspa.2026.0600>
 
-**Status.** Accepted for publication in *Proceedings of the Royal Society A*
-subject to minor revisions (manuscript RSPA-2026-0600, decision of 17 August
-2026). This repository is the code and data record that accompanies the
-article.
+**Status.** Published online on 11 November 2026 in *Proceedings of the Royal
+Society A: Mathematical, Physical and Engineering Sciences*, volume 482,
+issue 2349, article 20260600. The article is open access. The published title
+spells regularized. This repository is the code and data record that
+accompanies the article.
 
 **Archived release.** The version of this repository that supports the results
 of the article is permanently archived on Zenodo:
@@ -206,9 +207,11 @@ $`s = \xi/\mathfrak{a}`$.
 
 ## Manuscript
 
-The manuscript LaTeX sources live under [`latex/`](latex/) in two
-ready-to-submit journal formats that share the same text, figures, and
-bibliography (`FRT.bib`):
+The LaTeX sources of the article live under [`latex/`](latex/) in the two
+journal formats, and they share the same text, figures, and bibliography
+(`FRT.bib`). The version of record is the published article cited at the head
+of this page. The published title spells regularized, and these sources spell
+regularised.
 
 - [`latex/APS/`](latex/APS/): APS **REVTeX** version.
 - [`latex/PRSA/`](latex/PRSA/): **Proceedings of the Royal Society A** version
@@ -246,41 +249,47 @@ clean submission PDF from the same source, with identical pagination.
 
 ## Citing
 
-If you use this code or data, please cite the paper:
+If you use this code or these data, please cite the published article. The
+same reference is what the Cite this repository button offers.
 
-> D. Batic and D. Dutykh, *Spectral Green functions for T-duality-regularised
-> electrostatics in finite and bounded planar geometries*, Proceedings of the
-> Royal Society A (2026), accepted subject to minor revisions.
+> Davide Batic and Denys Dutykh, Spectral Green functions for
+> T-duality-regularized electrostatics in finite and bounded planar
+> geometries, *Proc. R. Soc. A* **482**, 20260600 (2026).
+> <https://doi.org/10.1098/rspa.2026.0600>
 
 ```bibtex
-@article{BaticDutykh2026,
+@article{Batic2026o,
   author  = {Batic, Davide and Dutykh, Denys},
-  title   = {Spectral {G}reen functions for {T}-duality-regularised
-             electrostatics in finite and bounded planar geometries},
-  journal = {Proceedings of the Royal Society A},
+  title   = {Spectral {G}reen functions for {T}-duality-regularized electrostatics in finite and bounded planar geometries},
+  journal = {Proceedings of the Royal Society A: Mathematical, Physical and Engineering Sciences},
   year    = {2026},
-  note    = {Accepted subject to minor revisions}
+  volume  = {482},
+  number  = {2349},
+  pages   = {20260600},
+  doi     = {10.1098/rspa.2026.0600},
+  url     = {https://doi.org/10.1098/rspa.2026.0600},
+  issn    = {1471-2946}
 }
 ```
 
-and, if you use the archived codes or datasets, the Zenodo record:
+The codes and the datasets of version 1.0.0, the release used in the article,
+are archived at <https://doi.org/10.5281/zenodo.22096406>. The concept DOI
+<https://doi.org/10.5281/zenodo.22096405> always resolves to the latest release.
 
-> D. Batic and D. Dutykh, *Spectral Green functions for T-duality-regularised
-> electrostatics in finite and bounded planar geometries: Julia codes and
-> datasets*, Zenodo (2026), v1.0.0, DOI
-> [10.5281/zenodo.22096405](https://doi.org/10.5281/zenodo.22096405).
+> Davide Batic and Denys Dutykh, Spectral Green functions for
+> T-duality-regularised electrostatics in finite and bounded planar
+> geometries: Julia codes and datasets, Zenodo, version 1.0.0 (2026).
+> <https://doi.org/10.5281/zenodo.22096406>
 
 ```bibtex
 @misc{BaticDutykhCode2026,
-  author       = {Batic, Davide and Dutykh, Denys},
-  title        = {{Spectral Green Functions for T-Duality-Regularised
-                   Electrostatics in Finite and Bounded Planar Geometries:
-                   Julia Codes and Datasets}},
-  year         = {2026},
-  howpublished = {Zenodo archive of the repository
-                  \url{https://github.com/dutykh/tduality/}},
-  note         = {Version v1.0.0},
-  doi          = {10.5281/zenodo.22096405}
+  author    = {Batic, Davide and Dutykh, Denys},
+  title     = {{Spectral Green Functions for T-Duality-Regularised Electrostatics in Finite and Bounded Planar Geometries: Julia Codes and Datasets}},
+  year      = {2026},
+  publisher = {Zenodo},
+  version   = {v1.0.0},
+  doi       = {10.5281/zenodo.22096406},
+  url       = {https://doi.org/10.5281/zenodo.22096406}
 }
 ```
 

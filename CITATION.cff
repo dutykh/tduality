@@ -1,0 +1,61 @@
+# Authors: Davide Batic and Dr. Denys Dutykh (Mathematics Department, Khalifa University
+# of Science and Technology, Abu Dhabi, UAE)
+#
+# Citation metadata in Citation File Format 1.2.0, from which GitHub draws its button
+# "Cite this repository". The preferred citation is the published article.
+
+cff-version: 1.2.0
+message: "If you use these codes or data, please cite the article given as the preferred citation."
+title: "Spectral Green functions for T-duality-regularized electrostatics in finite and bounded planar geometries: codes and data"
+abstract: >-
+  Codes and data for the spectral Green functions of T-duality-regularized
+  electrostatics on the square torus, the grounded half-plane and the grounded
+  strip, together with the running interaction dimension on the square torus.
+type: software
+version: "1.0.0"
+date-released: "2026-08-25"
+license: LGPL-2.1-only
+doi: 10.5281/zenodo.22096406
+repository-code: "https://github.com/dutykh/tduality"
+url: "https://doi.org/10.1098/rspa.2026.0600"
+keywords:
+  - T-duality
+  - zero-point length
+  - Green function
+  - planar electrostatics
+  - finite-size effects
+  - dimensional flow
+authors:
+  - family-names: Batic
+    given-names: Davide
+    affiliation: "Mathematics Department, Khalifa University of Science and Technology, Abu Dhabi, United Arab Emirates"
+    orcid: "https://orcid.org/0000-0002-7619-4900"
+  - family-names: Dutykh
+    given-names: Denys
+    affiliation: "Mathematics Department, Khalifa University of Science and Technology, Abu Dhabi, United Arab Emirates"
+    orcid: "https://orcid.org/0000-0001-5247-2788"
+preferred-citation:
+  type: article
+  title: "Spectral Green functions for T-duality-regularized electrostatics in finite and bounded planar geometries"
+  authors:
+    - family-names: Batic
+      given-names: Davide
+      affiliation: "Mathematics Department, Khalifa University of Science and Technology, Abu Dhabi, United Arab Emirates"
+      orcid: "https://orcid.org/0000-0002-7619-4900"
+    - family-names: Dutykh
+      given-names: Denys
+      affiliation: "Mathematics Department, Khalifa University of Science and Technology, Abu Dhabi, United Arab Emirates"
+      orcid: "https://orcid.org/0000-0001-5247-2788"
+  journal: "Proceedings of the Royal Society A: Mathematical, Physical and Engineering Sciences"
+  publisher:
+    name: "The Royal Society"
+  volume: 482
+  issue: 2349
+  start: "20260600"
+  year: 2026
+  month: 11
+  date-published: "2026-11-11"
+  doi: "10.1098/rspa.2026.0600"
+  url: "https://doi.org/10.1098/rspa.2026.0600"
+  issn: "1471-2946"
+  license: CC-BY-4.0
