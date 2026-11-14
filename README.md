@@ -1,307 +1,133 @@
-# Spectral Green functions for T-duality-regularized electrostatics in finite and bounded planar geometries
+<!-- Author: Dr. Denys Dutykh (Mathematics Department, Khalifa University of Science and Technology, Abu Dhabi, UAE) -->
 
-[![Proc. R. Soc. A](https://img.shields.io/badge/Proc.%20R.%20Soc.%20A-482%20(2026)%2020260600-success)](https://doi.org/10.1098/rspa.2026.0600)
-[![License](https://img.shields.io/badge/license-LGPL%20v2.1-blue)](LICENSE)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22096405.svg)](https://doi.org/10.5281/zenodo.22096405)
-![Julia](https://img.shields.io/badge/Julia-1.12-9558B2)
+# tduality: T-duality-regularized electrostatics in finite and bounded planar geometries
 
-Companion code, data, and manuscript sources for
+![The pair energy and the running interaction dimension of T-duality electrostatics on a square torus, compared with the infinite plane](docs/figures/tduality-torus.png)
 
-> Davide Batic and Denys Dutykh, *Spectral Green functions for
-> T-duality-regularized electrostatics in finite and bounded planar
-> geometries*, *Proc. R. Soc. A* **482**, 20260600 (2026).
-> <https://doi.org/10.1098/rspa.2026.0600>
+The two quantities that the codes compute on a square torus of side L, for a neutral pair of point charges ±Q placed along an axis of the torus at the separation ξ = r/L, and for three values of the zero-point length (ℓ₀/L = 0.02, 0.05 and 0.10); solid curves with markers belong to the torus, dashed curves to the infinite plane. Panel (a) shows the pair energy ΔV/Q², with the self-energies subtracted, which vanishes when the charges coincide: at short separations the torus follows the corrected infinite-plane law (1/4π) ln(1 + r²/ℓ₀²), while at separations of order L the subtraction of the zero mode makes the interaction bounded and periodic, flat at the farthest point ξ = 1/2, where it takes the values 0.442, 0.297 and 0.191 against 0.512, 0.367 and 0.259 in the plane. Panel (b) shows the running interaction dimension: every curve starts from the ultraviolet value 1, and on the torus the dimension reaches 3 exactly at ξ = 1/2, whereas in the plane it approaches 3 only logarithmically (2.69, 2.57 and 2.41 at ξ = 1/2).
 
-**Status.** Published online on 11 November 2026 in *Proceedings of the Royal
-Society A: Mathematical, Physical and Engineering Sciences*, volume 482,
-issue 2349, article 20260600. The article is open access. The published title
-spells regularized. This repository is the code and data record that
-accompanies the article.
+In two space dimensions the Coulomb interaction is logarithmic: it diverges at short distance and carries an additive ambiguity at large distance. The T-duality (zero-point length) deformation of Maxwell's theory removes the divergence, and the article by Davide Batic and Denys Dutykh in Proceedings of the Royal Society A (2026), cited below, shows that the large-distance behaviour must then be fixed by the geometry: it builds the Green functions of the deformed theory in finite and bounded planar domains from the spectral calculus of the Laplacian, with the boundary condition imposed before the nonlocal operator is formed, and works them out on the square torus, the grounded half-plane and the grounded strip. This repository holds the two Julia scripts that compute the figures of the article on the square torus, the pair energy and the running interaction dimension, by lattice sums whose truncation is controlled; their reference output with its convergence reports; and the LaTeX sources of the article.
 
-**Archived release.** The version of this repository that supports the results
-of the article is permanently archived on Zenodo:
-[10.5281/zenodo.22096405](https://doi.org/10.5281/zenodo.22096405) (concept DOI,
-always resolving to the latest release). The release used in the article is
-`v1.0.0`, archived under
-[10.5281/zenodo.22096406](https://doi.org/10.5281/zenodo.22096406).
+## The problem
 
-This repository contains the Julia scripts, the numerical output, and the
-manuscript for a finite-size formulation of T-duality-deformed electrostatics
-in 2+1 dimensions: corrected Green functions, self-energy-subtracted pair
-potentials, boundary effects, and the running interaction dimension. The
-manuscript LaTeX sources are provided under [`latex/`](latex/) in two journal
-formats, APS (REVTeX) and Proceedings of the Royal Society A, each of which
-builds to a PDF with a single `make` (see [Manuscript](#manuscript)).
+The deformation replaces the Maxwell kinetic operator by a nonlocal form factor of the wavenumber k, built on the modified Bessel function K₁ and the zero-point length ℓ₀. In the infinite plane this amounts to sourcing every point charge by a normalised charge cloud, and the energy of a neutral pair, once the self-energies are subtracted, is finite at the origin and recovers the logarithmic Coulomb law at large distance:
 
-## Background
-
-In two spatial dimensions the static Green function of the Laplacian is
-logarithmic, so the ordinary Coulomb interaction carries an unavoidable
-infrared (large-distance) ambiguity and a short-distance divergence. The
-T-duality (zero-point-length) deformation replaces the Maxwell kinetic operator
-by a nonlocal form factor
-
-```math
-f(k) = \ell_0\,k\,K_1(\ell_0 k),
+```text
+f(k) = ℓ₀ k K₁(ℓ₀ k)                                   form factor
+ρ(r) = (π ℓ₀²)⁻¹ (1 + r²/ℓ₀²)⁻²                        charge cloud, of total charge one
+ΔV_∞(r) = (Q²/4π) ln(1 + r²/ℓ₀²)                       neutral-pair energy in the plane
 ```
 
-where $`K_1`$ is a modified Bessel function and $`\ell_0`$ is the zero-point length.
-This factor smooths the ultraviolet (short-distance) behaviour while leaving the
-infrared sector to be fixed by the *geometry*. The paper makes that split
-explicit:
+In a bounded domain or on a compact surface, let A_B = −Δ_B be a non-negative self-adjoint realisation of the Laplacian with the boundary condition B, and P⊥ the orthogonal projector that removes its zero modes. The Green operator of the deformed theory is the spectral function
 
-- **Corrected infinite plane.** The T-duality kernel is equivalent to sourcing a
-  point charge by a finite, normalised charge cloud
-  $`\rho_{\ell_0}(r) = (\pi\ell_0^2)^{-1}(1 + r^2/\ell_0^2)^{-2}`$. The
-  self-energy-subtracted neutral-pair energy is finite at the origin and recovers
-  the logarithmic Coulomb law at large distance:
-
-```math
-\Delta V_{\infty,\ell_0}(r) = \frac{Q^2}{4\pi}\,\ln\!\left(1 + \frac{r^2}{\ell_0^2}\right).
+```text
+G = F(A_B) A_B⁻¹ P⊥,        F(λ) = ℓ₀ √λ K₁(ℓ₀ √λ)  for λ > 0,   F(0) = 1.
 ```
 
-- **Bounded / finite domains.** The Green function is defined through the
-  *spectral calculus* of the Laplacian, $`\mathcal{G} = F_{\ell_0}(A_B) A_B^{-1} P_\perp`$,
-  so that the boundary condition is imposed *before* the nonlocal operator is
-  formed. The paper works out three canonical realisations:
-  - **square torus**: charge neutrality via zero-mode subtraction;
-  - **grounded half-plane**: Dirichlet boundary, image-type self-energy;
-  - **grounded strip**: two Dirichlet boundaries, closed image-summed form.
+On the square torus the zero mode must be removed, which is the uniform neutralising background that charge neutrality requires on a compact space; in the grounded half-plane a Dirichlet boundary gives an image representation with a finite self-energy, and the grounded strip, with two Dirichlet boundaries, has a closed form summed over images. The running interaction dimension is built from the neutral-pair energy, so that no additive constant enters it, and it measures how the interaction scales with the separation: it tends to 1 at short distance in every geometry, while its behaviour at large distance depends on the geometry (the torus saturates, grounded boundaries screen the logarithm).
 
-- **Running interaction dimension.** An additive-constant-free diagnostic
-  $`\mathbb{D}_\Delta(r) = 3 - \partial \ln \mathcal{V}(r)/\partial \ln r`$ built from
-  the neutral-pair energy. The ultraviolet flow to one dimension survives in
-  finite volume, while the infrared behaviour is geometry-dependent (the torus
-  saturates; grounded boundaries screen the logarithm).
+The scripts evaluate these quantities on the square torus of side L, along the axial path r = (ξL, 0) with 0 ⩽ ξ ⩽ 1/2, where a = ℓ₀/L. The pair energy is the lattice sum over n = (n₁, n₂) ∈ ℤ² with n ≠ 0
 
-The two scripts in this repository reproduce **Figure 1** (the finite-volume
-T-duality pair potential on the square torus) and **Figure 2** (the running
-interaction dimension on the square torus), together with the data and
-convergence checks behind them.
-
-## Repository layout
-
-```
-.
-├── codes/                                       Julia scripts (self-contained)
-│   ├── plot_torus_potential_pdfjl               Fig. 1: axial torus pair potential
-│   └── plot_running_dimension_torus_noqt_fixed.jl   Fig. 2: running interaction dimension
-├── convergence/                                 Reference output and convergence checks
-│   ├── torus_potential_a_0p020.csv
-│   ├── torus_potential_a_0p050.csv
-│   ├── torus_potential_a_0p100.csv
-│   ├── convergence_report.txt
-│   ├── running_dimension_a_0p020.csv
-│   ├── running_dimension_a_0p050.csv
-│   ├── running_dimension_a_0p100.csv
-│   └── running_dimension_convergence_report.txt
-├── latex/                                       Manuscript LaTeX sources (two formats)
-│   ├── APS/                                      APS REVTeX version: DB-DD-TDuality.tex, Makefile, figs/
-│   └── PRSA/                                     Proc. R. Soc. A version: DB-DD-TDuality.tex, Makefile, figs/, class
-├── LICENSE                                      GNU LGPL v2.1
-└── README.md
+```text
+                       a K₁(2π a |n|)
+U_ax(ξ; a)  =    Σ     ──────────────  [1 − cos(2π n₁ ξ)],        U_ax = ΔV/Q²,
+                n ≠ 0     2π |n|
 ```
 
-> **Note on a filename.** The first script is committed as
-> `codes/plot_torus_potential_pdfjl`, where the dot before the extension is missing
-> (it is conceptually `plot_torus_potential_pdf.jl`). Julia runs a file
-> regardless of its name, so the commands below work as written.
+and the running dimension is obtained from it analytically, by differentiating the truncated Fourier series rather than by finite differences:
 
-## Requirements
+```text
+D_Δ(ξ; a) = 3 − ξ ∂_ξ U_ax / U_ax.
+```
 
-- [Julia](https://julialang.org/) (developed and tested with 1.12).
-- Internet access on first run, so the scripts can fetch their one dependency.
+The references of the infinite plane, with s = ξ/a, are
 
-The scripts are deliberately **self-contained and headless**. They avoid
-`Plots.jl`, `GR.jl`, Qt, Makie, GUI backends, and `pdflatex`. Each script
-creates an isolated Julia environment in a hidden folder next to itself
-(`.torus_potential_env_noqt` / `.running_dimension_env_noqt`), installs only
-[`SpecialFunctions.jl`](https://github.com/JuliaMath/SpecialFunctions.jl) for the
-modified Bessel functions $`K_0, K_1`$, and writes a hand-rolled vector PDF
-directly. Nothing else in your Julia setup is touched.
+```text
+U_∞(ξ; a) = (1/4π) ln(1 + ξ²/a²),        D_Δ^∞(s) = 3 − 2s² / [(1 + s²) ln(1 + s²)].
+```
 
-## Running
+The sum is truncated symmetrically, −N ⩽ n₁, n₂ ⩽ N. The cutoff N is chosen so that the analytic estimate of the omitted tail, K₀(2π a N)/π, falls below 10⁻¹⁰, and the result is checked directly against the sum with 2N on the plotting grid; for the running dimension, N is doubled further until the curves for N and 2N differ by at most 10⁻⁸.
+
+## Quick start
+
+With Julia installed, from the root of the repository:
 
 ```bash
 cd codes
-
-# Figure 1: finite-volume T-duality potential on the square torus
-julia plot_torus_potential_pdfjl
-
-# Figure 2: potential-based running interaction dimension on the torus
-julia plot_running_dimension_torus_noqt_fixed.jl
+julia plot_torus_potential_pdfjl                    # pair energy on the square torus
+julia plot_running_dimension_torus_noqt_fixed.jl    # running interaction dimension
 ```
 
-Each script prints its progress, then writes its results to an output directory
-created alongside it:
+The first script is stored as `codes/plot_torus_potential_pdfjl`, with no dot before the extension; Julia runs a file whatever its name, so the command works as written. Each script takes a few seconds, prints its progress and writes into a folder created beside it:
 
-| Script | Output directory | Files |
+| Script | Output folder | Files |
 | --- | --- | --- |
 | `plot_torus_potential_pdfjl` | `codes/torus_potential_output_pdf/` | `torus_potential.pdf`, three `torus_potential_a_*.csv`, `convergence_report.txt` |
 | `plot_running_dimension_torus_noqt_fixed.jl` | `codes/running_dimension_output_noqt/` | `running_dimension_torus.pdf`, three `running_dimension_a_*.csv`, `running_dimension_convergence_report.txt` |
 
-The CSV files and convergence reports archived under [`convergence/`](convergence/)
-are the reference outputs of these runs and can be compared against your own.
+The files stored in `convergence/` are the reference output of these runs; a run with Julia 1.13 reproduces their CSV files to within 10⁻¹⁵. Both scripts sweep the ratio a = ℓ₀/L over the values 0.02, 0.05 and 0.10 (the constant `A_VALUES`) and the separation ξ = r/L over 501 points of [0, 1/2]; these values and the tolerances are constants near the top of each script.
 
-### Parameters
+## Contents
 
-Both scripts sweep the dimensionless ratio $`\mathfrak{a} = \ell_0/L`$ over
-`A_VALUES = [0.02, 0.05, 0.10]` and the dimensionless separation
-$`\xi = r/L \in [0, 0.5]`$ on a grid of 501 points (the axial path on the torus).
-These, and the convergence tolerances, are `const`s near the top of each script.
+| Folder | Contents |
+| --- | --- |
+| `codes/` | the two Julia scripts, which compute the figures of the article on the square torus |
+| `convergence/` | their reference output: the curves of the three values of a as CSV files and the two convergence reports |
+| `latex/APS/` | the LaTeX sources of the article in the REVTeX format of the American Physical Society, with `Makefile` and `figs/` |
+| `latex/PRSA/` | the same article in the format of Proceedings of the Royal Society A (class `rsproca_new`), with `Makefile` and `figs/` |
+| `docs/figures/` | the figure of this page: `plot_readme_figure.py` draws it from the files of `convergence/` with the style file beside it |
 
-## Output formats
+The file `torus_potential_a_*.csv` has the columns `r_over_L, torus_deltaV_over_Q2, infinite_plane_deltaV_over_Q2`: the separation ξ = r/L, the pair energy on the torus U_ax = ΔV/Q² with the zero mode subtracted, and the infinite-plane reference (1/4π) ln(1 + ξ²/a²). The file `running_dimension_a_*.csv` has the columns `xi, D_torus, D_infinite`: the separation ξ, the running dimension on the torus, and the infinite-plane reference D_Δ^∞(ξ/a). The convergence reports give, for each value of a, the cutoff N, the tail estimate and the largest difference between the sums with N and 2N on the plotting grid. In the stored runs this difference is about 2 × 10⁻¹¹ for the pair energy, below the tail tolerance, and zero to the printed digits for the running dimension, so that the departures from the infinite plane seen in the figure are effects of the finite size of the torus, not of the truncation.
 
-**`torus_potential_a_*.csv`**, columns:
+## Requirements
 
-```
-r_over_L, torus_deltaV_over_Q2, infinite_plane_deltaV_over_Q2
-```
+The scripts need Julia (they were written with Julia 1.12 and run unchanged with 1.13) and, on their first run, an internet connection. Each script creates its own Julia environment in a hidden folder beside it (`.torus_potential_env_noqt` or `.running_dimension_env_noqt`) and installs there a single package, SpecialFunctions.jl, for the modified Bessel functions K₀ and K₁; nothing else of the Julia installation is touched. The scripts need no plotting package, no graphical interface and no LaTeX: they write their vector PDF figures directly. The figure of this page needs Python 3 with NumPy and Matplotlib, and sets its labels with LaTeX when a TeX installation is present.
 
-i.e. the separation $`\xi = r/L`$, the zero-mode-subtracted toroidal pair energy
-$`\Delta V_{L,\ell_0}/Q^2`$, and the corrected infinite-plane reference
-$`\frac{1}{4\pi}\ln(1 + \xi^2/\mathfrak{a}^2)`$.
+## The manuscript
 
-**`running_dimension_a_*.csv`**, columns:
-
-```
-xi, D_torus, D_infinite
-```
-
-i.e. the separation $`\xi`$, the toroidal running dimension
-$`\mathbb{D}_{\Delta,\mathbb{T}^2}(\xi;\mathfrak{a})`$, and the infinite-plane
-reference $`\mathbb{D}_\Delta^{(\infty)}(\xi/\mathfrak{a})`$.
-
-**Convergence reports** record, for each $`\mathfrak{a}`$, the symmetric lattice
-cutoff $`N`$ ($`-N \le n_1,n_2 \le N`$, zero mode omitted), the analytic tail
-estimate $`K_0(2\pi\mathfrak{a}N)/\pi`$, and the direct $`N`$ versus $`2N`$ difference on
-the plotting grid. The tail tolerance is $`10^{-10}`$ for the potential; the
-dimension curve additionally targets $`10^{-8}`$ on the $`N`$ versus $`2N`$ difference.
-In the archived runs the direct differences are at or below the printed
-double-precision floor, confirming that the visible deviations from the
-infinite-plane reference are genuine finite-size effects rather than truncation
-artefacts.
-
-## Key formulas implemented
-
-Square-torus axial pair potential (Eq. 81 in the paper), with
-$`\mathfrak{a} = \ell_0/L`$ and $`\xi = r/L`$:
-
-```math
-\mathcal{U}_{\mathrm{ax}}(\xi;\mathfrak{a}) = \sum_{\mathbf{n}\neq\mathbf{0}}
-\frac{\mathfrak{a}\,K_1(2\pi\mathfrak{a}|\mathbf{n}|)}{2\pi|\mathbf{n}|}
-\bigl[1 - \cos(2\pi n_1 \xi)\bigr].
-```
-
-Potential-based running interaction dimension (Eq. 123 / 135):
-
-```math
-\mathbb{D}_\Delta(\xi;\mathfrak{a}) = 3 - \frac{\xi\,\partial_\xi \mathcal{U}}{\mathcal{U}},
-```
-
-evaluated analytically from the truncated Fourier series rather than by finite
-differences. Infinite-plane references:
-$`\mathcal{U}_\infty = \frac{1}{4\pi}\ln(1 + \xi^2/\mathfrak{a}^2)`$ and
-$`\mathbb{D}_\Delta^{(\infty)}(s) = 3 - 2s^2/[(1+s^2)\ln(1+s^2)]`$ with
-$`s = \xi/\mathfrak{a}`$.
-
-## Manuscript
-
-The LaTeX sources of the article live under [`latex/`](latex/) in the two
-journal formats, and they share the same text, figures, and bibliography
-(`FRT.bib`). The version of record is the published article cited at the head
-of this page. The published title spells regularized, and these sources spell
-regularised.
-
-- [`latex/APS/`](latex/APS/): APS **REVTeX** version.
-- [`latex/PRSA/`](latex/PRSA/): **Proceedings of the Royal Society A** version
-  (`rsproca_new` class).
-
-Each folder has a `Makefile` that runs the full
-`pdflatex → bibtex → pdflatex → pdflatex` cycle and then removes all auxiliary
-files, leaving only `DB-DD-TDuality.pdf`:
+The LaTeX sources of the article are given in two journal formats, which share the text, the figures and the bibliography `FRT.bib`; the figures `figs/torus_potential.pdf` and `figs/running_dimension_torus.pdf` are those written by the two scripts. The version of record is the published article cited below; its title spells regularized, while these sources spell regularised. Each folder has a `Makefile` that runs pdflatex, BibTeX and pdflatex twice, then removes the auxiliary files and keeps `DB-DD-TDuality.pdf`:
 
 ```bash
-cd latex/PRSA   # or latex/APS
-make            # build DB-DD-TDuality.pdf (intermediates are removed automatically)
-make distclean  # also remove DB-DD-TDuality.pdf
+cd latex/PRSA     # or latex/APS
+make              # builds DB-DD-TDuality.pdf
+make distclean    # also removes DB-DD-TDuality.pdf
 ```
 
-Building requires a TeX distribution (e.g. TeX Live) with `pdflatex` and
-`bibtex`. The two figures (`figs/torus_potential.pdf`,
-`figs/running_dimension_torus.pdf`) are the PDFs produced by the Julia scripts
-above.
+Building needs a TeX distribution with pdflatex and BibTeX, such as TeX Live. The sources still mark the passages added during the revision: they are wrapped in the macro `revadd`, defined near the top of each `DB-DD-TDuality.tex`, whose active definition prints them in red; making the second, commented definition active instead prints them in black, with the same pagination.
 
-### Marked and clean builds
+## How to cite
 
-Passages added during the minor revision are wrapped in a `\revadd` macro
-defined near the top of each `DB-DD-TDuality.tex`. Exactly one of its two
-definitions may be active:
+If you use these codes or data, please cite the article:
 
-```latex
-\newcommand{\revadd}[1]{{\color{red}#1}}   % version showing the changes
-%\newcommand{\revadd}[1]{#1}               % clean version
-```
+D. Batic and D. Dutykh, Spectral Green functions for T-duality-regularized electrostatics in finite and bounded planar geometries, Proceedings of the Royal Society A: Mathematical, Physical and Engineering Sciences 482 (2349), 20260600 (2026). The article is open access.
 
-The sources are committed with the first definition active, so `make` produces
-the version in which the additions appear in red. Swapping the comment gives the
-clean submission PDF from the same source, with identical pagination.
-
-## Citing
-
-If you use this code or these data, please cite the published article. The
-same reference is what the Cite this repository button offers.
-
-> Davide Batic and Denys Dutykh, Spectral Green functions for
-> T-duality-regularized electrostatics in finite and bounded planar
-> geometries, *Proc. R. Soc. A* **482**, 20260600 (2026).
-> <https://doi.org/10.1098/rspa.2026.0600>
+https://doi.org/10.1098/rspa.2026.0600
 
 ```bibtex
 @article{Batic2026o,
-  author  = {Batic, Davide and Dutykh, Denys},
-  title   = {Spectral {G}reen functions for {T}-duality-regularized electrostatics in finite and bounded planar geometries},
+  author = {Batic, Davide and Dutykh, Denys},
+  title = {Spectral {{Green}} Functions for {{T}}-Duality-Regularized Electrostatics in Finite and Bounded Planar Geometries},
   journal = {Proceedings of the Royal Society A: Mathematical, Physical and Engineering Sciences},
-  year    = {2026},
-  volume  = {482},
-  number  = {2349},
-  pages   = {20260600},
-  doi     = {10.1098/rspa.2026.0600},
-  url     = {https://doi.org/10.1098/rspa.2026.0600},
-  issn    = {1471-2946}
+  year = 2026,
+  volume = {482},
+  number = {2349},
+  pages = {20260600},
+  doi = {10.1098/rspa.2026.0600}
 }
 ```
 
-The codes and the datasets of version 1.0.0, the release used in the article,
-are archived at <https://doi.org/10.5281/zenodo.22096406>. The concept DOI
-<https://doi.org/10.5281/zenodo.22096405> always resolves to the latest release.
+The button "Cite this repository" in the right-hand column of this page gives the same reference, read from `CITATION.cff`.
 
-> Davide Batic and Denys Dutykh, Spectral Green functions for
-> T-duality-regularised electrostatics in finite and bounded planar
-> geometries: Julia codes and datasets, Zenodo, version 1.0.0 (2026).
-> <https://doi.org/10.5281/zenodo.22096406>
+The codes and data of version 1.0.0 of this repository, the release used in the article, are archived on Zenodo under the DOI 10.5281/zenodo.22096406. The concept DOI of the archive, which the article quotes, always leads to its latest version:
 
-```bibtex
-@misc{BaticDutykhCode2026,
-  author    = {Batic, Davide and Dutykh, Denys},
-  title     = {{Spectral Green Functions for T-Duality-Regularised Electrostatics in Finite and Bounded Planar Geometries: Julia Codes and Datasets}},
-  year      = {2026},
-  publisher = {Zenodo},
-  version   = {v1.0.0},
-  doi       = {10.5281/zenodo.22096406},
-  url       = {https://doi.org/10.5281/zenodo.22096406}
-}
-```
+https://doi.org/10.5281/zenodo.22096405
 
-## License
+## Licence
 
-This project is released under the **GNU Lesser General Public License v2.1**.
-See [`LICENSE`](LICENSE) for the full text.
+GNU Lesser General Public License, version 2.1 (see `LICENSE`).
 
 ## Authors
 
-- Davide Batic, `davide.batic@ku.ac.ae`
-- Denys Dutykh, `denys.dutykh@ku.ac.ae`
+Davide Batic (davide.batic@ku.ac.ae) and Denys Dutykh (denys.dutykh@ku.ac.ae), Mathematics Department, Khalifa University of Science and Technology, Abu Dhabi, United Arab Emirates.
 
-Mathematics Department, Khalifa University of Science and Technology, Abu Dhabi,
-United Arab Emirates.
+https://www.denys-dutykh.com/
