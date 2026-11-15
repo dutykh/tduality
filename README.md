@@ -93,7 +93,7 @@ make              # builds DB-DD-TDuality.pdf
 make distclean    # also removes DB-DD-TDuality.pdf
 ```
 
-Building needs a TeX distribution with pdflatex and BibTeX, such as TeX Live. The sources still mark the passages added during the revision: they are wrapped in the macro `revadd`, defined near the top of each `DB-DD-TDuality.tex`, whose active definition prints them in red; making the second, commented definition active instead prints them in black, with the same pagination.
+Building needs a TeX distribution with pdflatex and BibTeX, such as TeX Live. The passages added during the revision are wrapped in the macro `revadd`, defined near the top of each `DB-DD-TDuality.tex`, whose active definition prints them as ordinary text, as in the two PDF files given here; making the first, commented definition active instead prints them in red, with the same pagination.
 
 ## How to cite
 
